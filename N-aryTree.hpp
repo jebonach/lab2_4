@@ -91,7 +91,9 @@ public:
             cur = cur->children[idx];
         }
         std::size_t last = path.back();
-        if (!cur || last >= max_children_) throw std::out_of_range("path");
+        if (!cur || last >= max_children_) {
+            throw std::out_of_range("path");
+        }
         delete cur->children[last];
         cur->children[last] = nullptr;
     }
