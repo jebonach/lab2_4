@@ -1,6 +1,6 @@
 #include "ui.h"
 
-inline std::vector<std::size_t> parsePath(const std::string& s,char sep='/')
+inline std::vector<std::size_t> parsePath(const std::string& s,char sep)
 {
     std::vector<std::size_t> out;
     std::stringstream ss(s); std::string tok;
@@ -55,14 +55,24 @@ static void createTree(std::vector<NAryTree<int>*>& objs)
 
 static void appendEl(std::vector<NAryTree<int>*>& objs)
 {
-    int id=askID(objs,"Tree id");
-    std::string pathStr; std::cout<<"Path (e.g. 0/1): "; std::cin>>pathStr;
-    std::cout<<"Value="; int val; std::cin>>val;
-    if(!std::cin){ std::cin.clear(); std::cin.ignore(10000,'\n');
-                   throw MyException(ErrorType::InvalidArg,1); }
-    auto path=parsePath(pathStr);
-    objs[id]->insert(path,val);
-    std::cout<<"Inserted.\n";
+    int id = askID(objs, "Tree id");
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cout << "Path (empty for root, e.g. 0/1): ";
+    std::string pathStr;
+    std::getline(std::cin, pathStr);
+
+    std::cout << "Value = ";
+    int val;
+    if (!(std::cin >> val)) {
+        std::cin.clear(); std::cin.ignore(10000,'\n');
+        throw MyException(ErrorType::InvalidArg, 1);
+    }
+
+    auto path = parsePath(pathStr);
+    objs[id]->insert(path, val);
+    std::cout << "Inserted.\n";
 }
 
 static void removeEl(std::vector<NAryTree<int>*>& objs)

@@ -106,7 +106,12 @@ private:
     Node* root_ = nullptr;
     std::size_t max_children_;
 
-    static void preorder(Node* n,const std::function<void(Node*)>& f){
-        if(!n) return; f(n); for(Node* c:n->children) preorder(c,f);
+    static void preorder(Node* n, const std::function<void(Node*)>& f) {
+        if (!n) return;
+        f(n);
+        for (Node* c : n->children) {
+            preorder(c, f);
+        }
     }
+
 };
