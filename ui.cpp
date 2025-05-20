@@ -1,6 +1,6 @@
 #include "ui.h"
 
-inline std::vector<std::size_t> parsePath(const std::string& s,char sep)
+std::vector<std::size_t> parsePath(const std::string& s,char sep)
 {
     std::vector<std::size_t> out;
     std::stringstream ss(s); std::string tok;
@@ -16,7 +16,7 @@ inline std::vector<std::size_t> parsePath(const std::string& s,char sep)
 }
 
 template<typename T>
-inline void printTree(const NAryTree<T>& tr)
+void printTree(const NAryTree<T>& tr)
 {
     using N = typename NAryTree<T>::Node;
     if(!tr.root()){ std::cout<<"<empty>\n"; return; }

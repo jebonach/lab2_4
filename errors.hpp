@@ -1,8 +1,7 @@
 #pragma once
-#include <exception>
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 #include <iostream>
 
 enum class ErrorType {
@@ -12,21 +11,17 @@ enum class ErrorType {
     Unknown
 };
 
-class MyException : public std::exception {
+class MyException {
     ErrorType type_;
-    uint8_t   code_;
+    uint8_t code_;
 public:
-    MyException(ErrorType t, uint8_t c) noexcept : type_(t), code_(c) {}
+    MyException(ErrorType t, uint8_t c)
+        : type_(t), code_(c) {}
 
-    ErrorType getType() const noexcept {
-        return type_;
-    }
-    uint8_t   getCode() const noexcept {
-        return code_;
-    }
-    const char* what() const noexcept override {
-        return "MyException";
-    }
+    ErrorType getType() const { return type_; }
+    uint8_t getCode() const { return code_; }
+
+    const char* what() const { return "MyException"; }
 };
 
 struct ErrorInfo { int code; std::string message; };
@@ -45,24 +40,25 @@ inline std::vector<ErrorInfo> g_ErrorTable = {
     {10, "No trees were created yet"}
 };
 
-inline std::string getErrorMessage(int code) {
-    for (auto &e : g_ErrorTable) if (e.code == code) return e.message;
+inline std::string getErrorMessage(int code)
+{
+    for (auto& e : g_ErrorTable)
+        if (e.code == code) {
+            return e.message;
+        }
     return "[Unknown error code]";
 }
 
-inline void handleException(const MyException& ex) {
+inline void handleException(const MyException& ex)
+{
     switch (ex.getType()) {
-        case ErrorType::OutOfRange:
-            std::cout << "[OutOfRange] ";
+        case ErrorType::OutOfRange:std::cout << "[OutOfRange] ";
             break;
-        case ErrorType::InvalidArg: 
-            std::cout << "[InvalidArg] ";
+        case ErrorType::InvalidArg:std::cout << "[InvalidArg] ";
             break;
-        case ErrorType::NegativeSize: 
-            std::cout << "[NegativeSize] ";
+        case ErrorType::NegativeSize:std::cout << "[NegativeSize] ";
             break;
-        default:
-            std::cout << "[Unknown] ";
+        default:std::cout << "[Unknown] ";
             break;
     }
     std::cout << "code=" << int(ex.getCode())
