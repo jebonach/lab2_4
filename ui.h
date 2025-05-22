@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <limits>
+#include <cmath>
 
 std::vector<std::size_t> parsePath(const std::string& s, char sep = '/');
 

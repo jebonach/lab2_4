@@ -19,17 +19,54 @@ template<typename T>
 void printTree(const NAryTree<T>& tr)
 {
     using N = typename NAryTree<T>::Node;
-    if(!tr.root()){ std::cout<<"<empty>\n"; return; }
-    std::queue<std::pair<N*,std::size_t>> q;
-    q.push({tr.root(),0}); std::size_t lvl=0;
-    while(!q.empty()){
-        auto [n,l]=q.front(); q.pop();
-        if(l!=lvl){ std::cout<<'\n'; lvl=l; }
-        std::cout<<n->value<<' ';
-        for(N* c:n->children) if(c) q.push({c,l+1});
+    if (!tr.root()) { std::cout << "<empty>\n"; return; }
+
+    const std::size_t h     = tr.height();      // высота дерева
+    const std::size_t arity = tr.degree();      // ≤ 3
+
+    std::vector<N*> curr { tr.root() };         // узлы текущего уровня
+
+    for (std::size_t lvl = 0; lvl < h; ++lvl)
+    {
+        std::size_t indent  = (1ULL << (h - lvl)) - 1;          // 2^(h-lvl) - 1
+        std::size_t gap     = (1ULL << (h - lvl + 1)) - 1;      // между узлами
+
+        /* ---------- печать уровня ---------- */
+        std::cout << std::string(indent, ' ');
+        for (std::size_t i = 0; i < curr.size(); ++i)
+        {
+            if (curr[i])
+                std::cout << curr[i]->value;
+            else
+                std::cout << ' ';
+
+            if (i + 1 != curr.size())
+                std::cout << std::string(gap, ' ');
+        }
+        std::cout << '\n';
+
+        /* ---------- формируем следующий уровень ---------- */
+        std::vector<N*> next;
+        for (N* n : curr)
+        {
+            if (n) {
+                for (std::size_t k = 0; k < arity; ++k)
+                    next.push_back(n->children[k]);
+            } else {
+                for (std::size_t k = 0; k < arity; ++k)
+                    next.push_back(nullptr);
+            }
+        }
+        // если все nullptr — дальше печатать нечего
+        bool allNull = true;
+        for (N* n : next) if (n) { allNull = false; break; }
+        if (allNull) break;
+
+        curr.swap(next);
     }
-    std::cout<<'\n';
 }
+
+
 
 static int askID(const std::vector<NAryTree<int>*>& v,const char* prompt)
 {
@@ -58,7 +95,6 @@ static void appendEl(std::vector<NAryTree<int>*>& objs)
     int id = askID(objs, "Tree id");
 
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
     std::cout << "Path (empty for root, e.g. 0/1): ";
     std::string pathStr;
     std::getline(std::cin, pathStr);
@@ -78,17 +114,23 @@ static void appendEl(std::vector<NAryTree<int>*>& objs)
 static void removeEl(std::vector<NAryTree<int>*>& objs)
 {
     int id=askID(objs,"Tree id");
-    std::string pathStr; std::cout<<"Path to delete: "; std::cin>>pathStr;
-    auto path=parsePath(pathStr);
-    objs[id]->erase(path);
+    
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Path (empty for root, e.g. 0/1): ";
+    std::string pathStr;
+    std::getline(std::cin, pathStr);
+
+    auto path = parsePath(pathStr);
+    objs[id]->smartErase(path);
     std::cout<<"Deleted.\n";
 }
 
 static void printAll(const std::vector<NAryTree<int>*>& objs)
 {
     if(objs.empty()){ std::cout<<"<no trees>\n"; return; }
-    for(std::size_t i=0;i<objs.size();++i){
-        std::cout<<"--- Tree #"<<i<<" (deg="<<objs[i]->degree()<<") ---\n";
+    for(std::size_t i=0; i<objs.size(); ++i){
+        std::cout<<"--- Tree #"<<i<<" (deg="<<objs[i]->degree()
+        <<", h=" << objs[i]->height() <<") ---\n";
         printTree(*objs[i]);
     }
 }
