@@ -20,29 +20,27 @@ public:
     }
     ~NAryTree() { delete root_; }
 
-    
-    void insert(const std::vector<std::size_t>& path, const T& v) {
+
+    void insert(const std::vector<std::size_t>& path, const T& v)
+    {
         if (path.empty()) {
-            if (root_) {
-                throw MyException(ErrorType::InvalidArg, 6);
-            }
-            root_ = new Node(v, max_children_);
-            height_ = std::max<std::size_t>(height_, path.size() + 1);
+            if (root_) throw MyException(ErrorType::InvalidArg, 6);
+            root_  = new Node(v, max_children_);
+            height_ = 1;
             return;
         }
+
         if (!root_) throw MyException(ErrorType::OutOfRange, 8);
 
         Node* cur = root_;
-        for (std::size_t i = 0; i + 1 < path.size(); i++) {
+        for (std::size_t i = 0; i + 1 < path.size(); ++i)
+        {
             std::size_t idx = path[i];
-            if (idx >= max_children_) {
-                throw MyException(ErrorType::OutOfRange, 3);
-            }
-            if (!cur->children[idx]){
-                cur->children[idx] = new Node(T{}, max_children_);
-            }
+            if (idx >= max_children_ || !cur->children[idx])
+                throw MyException(ErrorType::OutOfRange, 8);
             cur = cur->children[idx];
         }
+
         std::size_t last = path.back();
         if (last >= max_children_) {
             throw MyException(ErrorType::OutOfRange, 3);
@@ -112,7 +110,7 @@ public:
         Node* parent = nullptr;
         std::size_t idxInParent = 0;
 
-        for (std::size_t step = 0; step < path.size(); ++step) {
+        for (std::size_t step = 0; step < path.size(); step++) {
             std::size_t idx = path[step];
             if (!cur || idx >= max_children_) {
                 throw MyException(ErrorType::OutOfRange, 8);
